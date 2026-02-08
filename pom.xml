@@ -10,8 +10,9 @@
 
 
 <modules>
-<module>rest</module>
-<module>calculator</module>
+    <module>rest</module>
+    <module>calculator</module>
+    <module>common</module>
 </modules>
 
 
