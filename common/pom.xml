@@ -12,7 +12,10 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
+    <groupId>com.wit</groupId>
     <artifactId>common</artifactId>
+    <version>1.0.0</version>
+    
     <packaging>jar</packaging>
     <name>common</name>
 
