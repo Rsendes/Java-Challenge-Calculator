@@ -36,7 +36,7 @@ public class CalcRequestListener {
         CalcResponse response = new CalcResponse(
                 request.getRequestId(),
                 result,
-                "OK"
+                null // no error
         );
 
         kafkaTemplate.send(responseTopic, request.getRequestId(), response);
