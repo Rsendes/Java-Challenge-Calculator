@@ -9,6 +9,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -35,16 +36,9 @@ public class CalcGateway {
 
     /**
      * Sends a calculation request and waits for the response asynchronously.
-     *
-     * @param operation The calculation operation (SUM, SUBTRACT, MULTIPLY, DIVIDE)
-     * @param a Operand A
-     * @param b Operand B
-     * @return The calculation result
      */
     public BigDecimal calculate(Operation operation, BigDecimal a, BigDecimal b) {
-        // Generate requestId as String
         String requestId = UUID.randomUUID().toString();
-
         CalcRequest request = new CalcRequest(requestId, operation, a, b);
 
         CompletableFuture<CalcResponse> future = new CompletableFuture<>();
@@ -56,12 +50,11 @@ public class CalcGateway {
         try {
             CalcResponse response = future.get(timeoutMs, TimeUnit.MILLISECONDS);
 
-            if (response.error() != null) {
-                throw new IllegalArgumentException(response.error());
+            if (response.getError() != null) {
+                throw new IllegalArgumentException(response.getError());
             }
 
-            // Return the BigDecimal result directly
-            return response.result();
+            return response.getResult();
 
         } catch (Exception e) {
             throw new RuntimeException("Calculation failed: " + e.getMessage(), e);
@@ -72,13 +65,22 @@ public class CalcGateway {
     }
 
     /**
+     * Kafka listener for calculator responses
+     */
+    @KafkaListener(
+            topics = "${app.kafka.topic.responses}",
+            groupId = "${spring.kafka.consumer.group-id}",
+            containerFactory = "calcResponseKafkaListenerContainerFactory"
+    )
+    public void listenResponses(CalcResponse response) {
+        complete(response);
+    }
+
+    /**
      * Completes a pending calculation when a response is received.
-     *
-     * @param response The calculation response
      */
     public void complete(CalcResponse response) {
-        // Lookup using String requestId
-        CompletableFuture<CalcResponse> future = pending.get(response.requestId());
+        CompletableFuture<CalcResponse> future = pending.get(response.getRequestId());
         if (future != null) {
             future.complete(response);
         }

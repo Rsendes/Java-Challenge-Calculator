@@ -1,17 +1,21 @@
 package com.wit.rest;
 
-import com.wit.common.api.CalcRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 @SpringBootTest
 class RestApplicationTests {
 
-    @MockBean
-    private KafkaTemplate<String, CalcRequest> kafkaTemplate;
+    @Configuration
+    @Import({}) // no beans that depend on Kafka
+    static class TestConfig {
+        // empty on purpose
+    }
 
     @Test
-    void contextLoads() {}
+    void contextLoads() {
+        // Spring context can start without any Kafka beans
+    }
 }

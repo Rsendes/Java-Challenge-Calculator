@@ -8,14 +8,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class CalcResponseListener {
 
-    private final CalcGateway gateway;
+    private final CalcGateway calcGateway;
 
-    public CalcResponseListener(CalcGateway gateway) {
-        this.gateway = gateway;
+    public CalcResponseListener(CalcGateway calcGateway) {
+        this.calcGateway = calcGateway;
     }
 
-    @KafkaListener(topics = "${app.kafka.topic.responses}")
-    public void onMessage(CalcResponse response) {
-        gateway.complete(response);
+    @KafkaListener(
+            topics = "${app.kafka.topic.responses}",
+            groupId = "rest-service",
+            containerFactory = "kafkaListenerContainerFactory"
+    )
+    public void listen(CalcResponse response) {
+        calcGateway.complete(response); // completes the pending request
     }
 }
