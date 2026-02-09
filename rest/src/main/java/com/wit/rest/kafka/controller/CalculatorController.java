@@ -8,6 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 
 @RestController
 public class CalculatorController {
@@ -43,10 +46,14 @@ public class CalculatorController {
     }
 
     @GetMapping("/division")
-    public ResponseEntity<Map<String, BigDecimal>> division(
-            @RequestParam BigDecimal a,
-            @RequestParam BigDecimal b
-    ) {
-        return ResponseEntity.ok(Map.of("result", gateway.calculate(Operation.DIVISION, a, b)));
+    public ResponseEntity<Map<String, String>> division(@RequestParam BigDecimal a,
+                                                        @RequestParam BigDecimal b) {
+        try {
+            BigDecimal result = gateway.calculate(Operation.DIVISION, a, b);
+            return ResponseEntity.ok(Map.of("result", result.toString()));
+        } catch (ArithmeticException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(Map.of("error", e.getMessage()));
+        }
     }
 }
