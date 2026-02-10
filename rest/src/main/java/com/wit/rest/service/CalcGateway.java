@@ -3,15 +3,17 @@ package com.wit.rest.service;
 import com.wit.common.api.CalcRequest;
 import com.wit.common.api.CalcResponse;
 import com.wit.common.api.Operation;
+import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Service;
+
 import java.math.BigDecimal;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.stereotype.Service;
 
 @Service
 public class CalcGateway {
@@ -36,9 +38,15 @@ public class CalcGateway {
 
     /**
      * Sends a calculation request and waits for the response asynchronously.
+     * Propagates requestId from HTTP MDC if present.
      */
     public BigDecimal calculate(Operation operation, BigDecimal a, BigDecimal b) {
-        String requestId = UUID.randomUUID().toString();
+        // Reuse requestId from MDC if present, else generate a new one
+        String requestId = MDC.get("requestId");
+        if (requestId == null || requestId.isBlank()) {
+            requestId = UUID.randomUUID().toString();
+        }
+
         CalcRequest request = new CalcRequest(requestId, operation, a, b);
 
         CompletableFuture<CalcResponse> future = new CompletableFuture<>();

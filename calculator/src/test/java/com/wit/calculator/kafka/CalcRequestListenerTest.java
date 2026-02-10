@@ -25,7 +25,8 @@ class CalcRequestListenerTest {
         calculatorService = mock(CalculatorService.class);
         kafkaTemplate = mock(KafkaTemplate.class);
 
-        listener = new CalcRequestListener(calculatorService, kafkaTemplate);
+        listener = new CalcRequestListener(calculatorService, kafkaTemplate, "calculator-responses");
+
     }
 
     @Test
