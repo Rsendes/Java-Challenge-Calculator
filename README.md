@@ -14,6 +14,7 @@ Supports operations like sum, subtraction, multiplication, division, with proper
 - Maven 3.8+  
 - Spring Boot 3.2+  
 - Kafka (for async request/response)  
+*(No Docker required to run locally — only needed if using containerized Kafka)*
 ## Docker (Optional)
 You can optionally run the application with Docker and Docker Compose:
 1. Build the module jars:
@@ -43,13 +44,14 @@ mvn spring-boot:run -pl rest
 REST service runs on port 8080
 Calculator service runs on port 8081
 ## API Endpoints
-GET /sum?a={num1}&b={num2} – Returns sum of a and b
-GET /subtraction?a={num1}&b={num2} – Returns subtraction a - b
-GET /multiplication?a={num1}&b={num2} – Returns multiplication a * b
-GET /division?a={num1}&b={num2} – Returns division a / b
+- GET /sum?a={num1}&b={num2} – Returns sum of a and b
+- GET /subtraction?a={num1}&b={num2} – Returns subtraction a - b
+- GET /multiplication?a={num1}&b={num2} – Returns multiplication a * b
+- GET /division?a={num1}&b={num2} – Returns division a / b
+
 Responses:
-400 Bad Request – Missing parameter
-500 Internal Server Error – Division by zero
+- 400 Bad Request – Missing parameter
+- 500 Internal Server Error – Division by zero
 ## Testing
 Run all tests:
 ```bash
