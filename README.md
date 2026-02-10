@@ -1,62 +1,81 @@
 # Java Challenge Calculator
 ## Description
-A modular Java calculator application with:
-- Core calculation engine `calculator` module)
-- REST API `rest` module)
-- Kafka-based request/response gateway
-Supports operations like sum, subtraction, multiplication, division, with proper error handling (e.g., division by zero returns 500).
+A modular Java calculator application built for the WIT Java challenge.
+It contains:
+- **calculator** module — calculation engine and Kafka request consumer
+- **rest** module — REST API that exposes calculator endpoints and communicates via Kafka
+- **Kafka** — used for inter-module request/response communication
+
+Supports arbitrary precision signed decimal numbers using `BigDecimal`.
+
+---
+
 ## Modules
-- **calculator** – Core logic and services  
-- **rest** – REST API controller exposing calculator endpoints  
-- **common** – Shared classes and Kafka request/response models (included in both modules)
+- **calculator** — Core calculation logic and Kafka listener
+- **rest** — REST API controller + Kafka gateway
+- **common** — Shared request/response models
+
+---
+
 ## Requirements
-- Java 17+  
-- Maven 3.8+  
-- Spring Boot 3.2+  
-- Kafka (for async request/response)  
-*(No Docker required to run locally — only needed if using containerized Kafka)*
-## Docker (Optional)
-You can optionally run the application with Docker and Docker Compose:
-1. Build the module jars:
-```bash
-mvn clean package
-```
-2. Run all services with Kafka using Docker Compose:
-```bash
-docker compose up --build
-```
+- Java 17+
+- Maven 3.8+
+- Spring Boot 3.2+
+- Apache Kafka
+- Docker + Docker Compose
+
+---
+
 ## Build
 Build all modules:
 ```bash
 mvn clean install
 ```
-Build and test only a specific module:
-```bash
-mvn test -pl rest
-mvn test -pl calculator
-```
-## Run
-Run modules individually:
-```bash
-mvn spring-boot:run -pl calculator
-mvn spring-boot:run -pl rest
-```
-REST service runs on port 8080
-Calculator service runs on port 8081
-## API Endpoints
-- GET /sum?a={num1}&b={num2} – Returns sum of a and b
-- GET /subtraction?a={num1}&b={num2} – Returns subtraction a - b
-- GET /multiplication?a={num1}&b={num2} – Returns multiplication a * b
-- GET /division?a={num1}&b={num2} – Returns division a / b
 
-Responses:
-- 400 Bad Request – Missing parameter
-- 500 Internal Server Error – Division by zero
+## Run (Docker)
+Start Kafka + calculator + rest:
+```bash
+docker compose up --build
+```
+
+Test the API:
+```bash
+curl "http://localhost:8080/sum?a=1&b=2"
+curl "http://localhost:8080/subtraction?a=5&b=3"
+curl "http://localhost:8080/multiplication?a=2&b=4"
+curl "http://localhost:8080/division?a=10&b=2"
+```
+
+## REST API Endpoints
+All endpoints use query parameters a and b.
+
+- GET /sum?a={a}&b={b}
+- GET /subtraction?a={a}&b={b}
+- GET /multiplication?a={a}&b={b}
+- GET /division?a={a}&b={b}
+
+Example:
+```bash
+curl "http://localhost:8080/sum?a=1&b=2"
+```
+
+Response:
+```json
+{
+  "result": 3
+}
+```
+
+## Error Handling
+- 400 Bad Request — missing required parameters
+- 500 Internal Server Error — calculation failure (e.g. division by zero)
+
 ## Testing
 Run all tests:
 ```bash
 mvn test
 ```
+
 Run tests for a single module:
 ```bash
 mvn test -pl calculator
